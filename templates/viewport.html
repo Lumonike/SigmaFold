@@ -7,24 +7,17 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
   <style>
-    .mol-container {
-      width: 100%;
-      max-width: 400px;
-      height: 400px;
-      position: relative;
-      margin: 0 auto;
-      box-sizing: border-box;
-    }
     body {
       margin: 0;
       padding: 0;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
       background: #f3f3f3;
     }
-    #container-01 {
+    .mol-container, #container-01 {
       width: 100%;
       max-width: 400px;
       height: 400px;
@@ -38,14 +31,22 @@
       color: #b00;
       margin-top: 1em;
       min-height: 1.5em;
+      text-align: center;
     }
-    input[type="text"] {
+    .pdb-input-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
       margin-top: 2em;
       margin-bottom: 0.5em;
+      gap: 0.5em;
+    }
+    select {
       padding: 0.3em 0.5em;
       font-size: 1em;
       border-radius: 4px;
       border: 1px solid #bbb;
+      min-width: 200px;
     }
     button {
       padding: 0.3em 1em;
@@ -55,21 +56,50 @@
       background: #eef;
       cursor: pointer;
       margin-bottom: 1em;
+      white-space: nowrap;
+    }
+    @media (max-width: 500px) {
+      .mol-container, #container-01 {
+        max-width: 98vw;
+        height: 60vw;
+        min-height: 200px;
+      }
+      .pdb-input-row {
+        flex-direction: column;
+        gap: 0.3em;
+      }
+      button {
+        margin-bottom: 0;
+      }
     }
   </style>
 </head>
-<body>  
-  
-  <input type="text" id="pdb_name" name="pdb_file_name">
+<body>
+  <div class="pdb-input-row">
+    <select id="pdb_name">
+      <option value="" disabled selected>Select a PDB file</option>
+      <option value="P99999">P99999</option>
+
+    </select>
+    <button onclick="get_pdb()">Show 3D</button>
+  </div>
   <div id="result"></div>
-  <button onclick="get_pdb()">click me</button>
-  <div id="container-01"></div>
-  <script> 
+  <div id="container-01" class="mol-container"></div>
+  <script>
     const viewer = $3Dmol.createViewer("container-01", {});
     var default_url = window.location;
     async function get_pdb() {
       const inputValue = document.getElementById("pdb_name").value;
       const resultBox = document.getElementById("result");
+
+      resultBox.textContent = "";
+      viewer.clear();
+      viewer.render();
+
+      if (!inputValue) {
+        resultBox.textContent = "Please select a PDB file.";
+        return;
+      }
 
       try {
         const save_response = await fetch(`${default_url}/getpdb?file_name=${encodeURIComponent(inputValue)}`);
@@ -82,11 +112,38 @@
         viewer.zoomTo();
         viewer.render();
         viewer.zoom(1.2, 1000);
-        
+
       } catch (error) {
         resultBox.textContent = `Error getting pdb: ${error.message}`;
       }
     }
+    async function populateFileSelect() {
+      const select = document.getElementById("pdb_name");
+      try {
+        const response = await fetch(`${default_url}/list_pdb`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        select.innerHTML = "";
+        if (data.files && Array.isArray(data.files) && data.files.length > 0) {
+          data.files.forEach(filename => {
+            const option = document.createElement("option");
+            option.value = filename;
+            option.textContent = filename;
+            select.appendChild(option);
+          });
+        } else {
+          const option = document.createElement("option");
+          option.value = "";
+          option.textContent = "No files found";
+          select.appendChild(option);
+        }
+      } catch (error) {
+        console.error('Error populating file select:', error);
+        select.innerHTML = "<option value=''>Error loading files</option>";
+      }
+    }
+
+    window.onload = populateFileSelect;
   </script>
 </body>
 </html>

@@ -113,7 +113,7 @@ def list_files():
 def getpdb():
     file_name = request.args.get('file_name', '')
     dir_path = f"{args.base_directory}web_pdb"
-    file_path = os.path.join(dir_path, f"{file_name}.pdb")
+    file_path = os.path.join(dir_path, f"{file_name}")
     try:
         result = subprocess.run(
             ["cat", file_path],
@@ -124,6 +124,12 @@ def getpdb():
         return jsonify({'message': result.stdout.strip()})
     except Exception as e:
         return jsonify({'message': f'Unexpected error: {str(e)}'}), 500
+
+@app.route('/viewport/list_pdb')
+def list_pdb():
+    directory = f"{args.base_directory}web_pdb"
+    files = os.listdir(directory)
+    return jsonify({'files': files})
 
 if __name__ == '__main__':
     app.run(debug=True, port=0000)
