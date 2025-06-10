@@ -19,7 +19,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      /* no gap, stacking handled in JS */
     }
     #alert-container .alert {
       pointer-events: auto;
@@ -85,28 +84,45 @@
   <script>
     let default_url = window.location;
 
-    // 3D stack effect: newest alert is on top/front, stack "upward"
+    // Keep a queue of all active alerts
+    let alertQueue = [];
+
     function updateAlert3DStack() {
       const alerts = Array.from(document.querySelectorAll("#alert-container .alert"));
-      // Reverse order: newest at i=0, oldest at i=n-1
       const total = alerts.length;
-      const visibleStack = 5; // how many are visually stacked
-      alerts.slice().reverse().forEach((alert, i) => {
-        // Stack upward by shifting each alert UP by (i * yOffset)
-        // Newest is on top, higher z-index, lower translateY
-        const yOffset = -18; // negative: stack upward
-        const z = -i * 24; // less Z for less deep stack
+      const visibleStack = 5;
+      // oldest at i=0, newest at i=n-1
+      alerts.forEach((alert, i) => {
+        const yOffset = -18;
+        const z = -i * 24;
         const scale = 1 - i * 0.04;
         const rotate = i * 2.5;
         const translateY = Math.max(i, 0) * yOffset;
-        // Fade out the oldest ones, but leave them barely peeking
         alert.style.transform =
           `translateY(${translateY}px) scale(${scale}) rotateX(${rotate}deg) translateZ(${z}px)`;
         alert.style.zIndex = 100 + total - i;
         alert.style.filter = i > 2 ? 'blur(0.8px)' : '';
         alert.style.opacity = i < visibleStack ? '1' : '0.5';
-        alert.style.pointerEvents = i === 0 ? 'auto' : 'none'; // Only newest/front is clickable
+        alert.style.pointerEvents = i === total - 1 ? 'auto' : 'none'; // Only newest/front is clickable
       });
+    }
+
+    // Remove the oldest alert in the queue, fade it out, then remove from DOM and queue
+    function removeOldestAlert() {
+      if (alertQueue.length === 0) return;
+      const oldest = alertQueue[0]; // FIFO
+      if (!oldest) return;
+      // Prevent multiple removals
+      if (oldest._removing) return;
+      oldest._removing = true;
+      oldest.style.opacity = '0';
+      setTimeout(() => {
+        if (oldest.parentElement) {
+          oldest.remove();
+          alertQueue = alertQueue.filter(a => a !== oldest);
+          updateAlert3DStack();
+        }
+      }, 400);
     }
 
     function showAlert(message, type = 'info') {
@@ -133,29 +149,52 @@
       alertDiv.classList.add(bgColor, textColor);
       alertDiv.innerHTML = `
         <span class="font-semibold">${message}</span>
-        <button class="ml-4 text-sm opacity-75 hover:opacity-100 focus:outline-none"
-          onclick="this.parentElement.remove(); updateAlert3DStack(); return false;"
+        <button class="ml-4 w-10 h-10 flex items-center justify-center text-2xl opacity-75 hover:opacity-100 focus:outline-none"
+          onclick="closeAlert(this.parentElement); return false;"
           style="pointer-events:auto;">&times;</button>
       `;
 
       alertContainer.appendChild(alertDiv);
+      alertQueue.push(alertDiv);
 
-      // Use requestAnimationFrame for immediate show
       requestAnimationFrame(() => {
         alertDiv.style.opacity = '1';
       });
       updateAlert3DStack();
 
-      setTimeout(() => {
-        alertDiv.style.opacity = '0';
-        alertDiv.addEventListener('transitionend', () => {
-          alertDiv.remove();
-          updateAlert3DStack();
-        });
-      }, 5000);
+      // Remove after timeout, but for oldest banner, not this one
+      // Only trigger a removal if this is the first alert or if there's more than one
+      if (alertQueue.length === 1) {
+        setTimeout(function processQueue() {
+          removeOldestAlert();
+          if (alertQueue.length > 0) {
+            setTimeout(processQueue, 700); // show each alert for 700ms before removing the next
+          }
+        }, 1000); // initial delay for first alert
+      }
+
+      // Also allow removal via button
+      alertDiv.__removeAlert = function() {
+        // Remove from queue and DOM immediately, then update stack
+        if (alertDiv.parentElement) {
+          alertDiv.style.opacity = '0';
+          setTimeout(() => {
+            if (alertDiv.parentElement) {
+              alertDiv.remove();
+              alertQueue = alertQueue.filter(a => a !== alertDiv);
+              updateAlert3DStack();
+            }
+          }, 400);
+        }
+      };
     }
 
-    
+    // Helper for close button
+    function closeAlert(alertDiv) {
+      if (alertDiv && typeof alertDiv.__removeAlert === "function") {
+        alertDiv.__removeAlert();
+      }
+    }
 
     async function return_fasta() {
       const inputValue = document.getElementById("protein_name").value;
@@ -223,20 +262,17 @@
         showAlert('Please enter a UniProt ID to name the file.', 'info');
         return;
       }
-
       try {
         const save_response = await fetch(`${default_url}/save_fasta?file_number=${encodeURIComponent(inputValue)}&bruh=${encodeURIComponent(textContent)}`);
         if (!save_response.ok) throw new Error(`HTTP error! status: ${save_response.status}`);
         const data = await save_response.json();
 
-        document.getElementById("result2").textContent = data.message;
         populateFileSelect();
-        showAlert('FASTA saved successfully!', 'success');
+        showAlert(data.message, 'success');
 
       } catch (error) {
         console.error('Error in save_fasta:', error);
         showAlert(`Error saving FASTA: ${error.message}`, 'error');
-        document.getElementById("result2").textContent = `Error: ${error.message}`;
       }
     }
 
@@ -264,8 +300,6 @@
       }
     }
 
-    //ERROR BELOW WITH DELETE FIX PLEASE
-
     async function delete_fasta() {
       const fastaSelect = document.getElementById("files");
       const selectedFile = fastaSelect.value;
@@ -284,7 +318,6 @@
         showAlert(`Error deleting FASTA file: ${error.message}`, 'error');
       }
     }
-
 
     async function populateFileSelect() {
       const select = document.getElementById("files");
