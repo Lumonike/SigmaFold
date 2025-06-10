@@ -19,6 +19,11 @@ app = Flask(__name__, template_folder = args.base_directory + "templates/")
 def index():
     return render_template(f"template.html")
 
+    
+@app.route('/viewport')
+def vp():
+    return render_template(f"viewport.html")
+
 @app.route('/return_fasta')
 def return_fasta():
     protein_id = request.args.get('protein_id', '')
