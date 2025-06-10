@@ -1,6 +1,13 @@
+from dotenv import load_dotenv
 import os
-DIR = os.environ['BASE_DIRECTORY']
 import subprocess
+
+# Load the .env file
+load_dotenv()
+
+DIR = os.getenv('BASE_DIRECTORY')
+
+print(f"running SigmaFold from directory '{DIR}'")
 
 subprocess.run(
     [
