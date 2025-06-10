@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SigmaFold</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    #alert-container {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 32rem;
+      z-index: 9999;
+      pointer-events: none;
+      perspective: 1200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      /* no gap, stacking handled in JS */
+    }
+    #alert-container .alert {
+      pointer-events: auto;
+      position: absolute;
+      left: 0;
+      right: 0;
+      margin: auto;
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 0.5rem;
+      box-shadow: 0 6px 24px 0 rgba(0,0,0,0.23), 0 1.5px 3px 0 rgba(0,0,0,0.15);
+      opacity: 0;
+      transition:
+        opacity 0.4s cubic-bezier(.4,0,.2,1),
+        transform 0.4s cubic-bezier(.4,0,.2,1);
+      will-change: opacity, transform;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen p-6 font-mono">
+  <div class="max-w-4xl mx-auto space-y-8">
+    <h1 class="text-4xl font-bold text-center">SigmaFold</h1>
+
+    <div id="alert-container"></div>
+
+    <div>
+      <label for="protein_name" class="block text-lg font-semibold mb-2">Protein Name (UniProt ID):</label>
+      <input type="text" id="protein_name" name="protein_name"
+             class="w-full px-4 py-2 rounded bg-gray-800 border border-gray-600 text-white focus:outline-none focus:ring focus:border-blue-400" />
+    </div>
+
+    <div class="flex flex-wrap gap-4">
+      <button onclick="return_fasta()"
+              class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Return FASTA</button>
+      <button onclick="save_fasta()"
+              class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">Save FASTA</button>
+      <button onclick="view_fasta()"
+              class="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition">View FASTA</button>
+    </div>
+
+    <div>
+      <label for="files" class="block text-lg font-semibold mb-2">Choose a file:</label>
+      <select id="files"
+              class="w-full px-4 py-2 rounded bg-gray-800 border border-gray-600 text-white focus:outline-none focus:ring">
+      </select>
+    </div>
+
+    <div>
+      <h2 class="text-xl font-semibold mb-2">FASTA Output</h2>
+      <div id="result"
+           class="p-4 bg-gray-800 border border-gray-700 rounded text-sm whitespace-pre-wrap overflow-x-auto"></div>
+    </div>
+
+    <div>
+      <h2 class="text-xl font-semibold mb-2">FASTA Viewport</h2>
+      <div id="result3"
+           class="p-4 bg-gray-800 border border-gray-700 rounded text-sm whitespace-pre-wrap overflow-x-auto"></div>
+    </div>
+
+    <div>
+      <h2 class="text-xl font-semibold mb-2">Save Result</h2>
+      <div id="result2"
+           class="p-4 bg-gray-800 border border-gray-700 rounded text-sm whitespace-pre-wrap overflow-x-auto"></div>
+    </div>
+  </div>
+
+  <script>
+    let default_url = window.location;
+
+    // 3D stack effect: newest alert is on top/front, stack "upward"
+    function updateAlert3DStack() {
+      const alerts = Array.from(document.querySelectorAll("#alert-container .alert"));
+      // Reverse order: newest at i=0, oldest at i=n-1
+      const total = alerts.length;
+      const visibleStack = 5; // how many are visually stacked
+      alerts.slice().reverse().forEach((alert, i) => {
+        // Stack upward by shifting each alert UP by (i * yOffset)
+        // Newest is on top, higher z-index, lower translateY
+        const yOffset = -18; // negative: stack upward
+        const z = -i * 24; // less Z for less deep stack
+        const scale = 1 - i * 0.04;
+        const rotate = i * 2.5;
+        const translateY = Math.max(i, 0) * yOffset;
+        // Fade out the oldest ones, but leave them barely peeking
+        alert.style.transform =
+          `translateY(${translateY}px) scale(${scale}) rotateX(${rotate}deg) translateZ(${z}px)`;
+        alert.style.zIndex = 100 + total - i;
+        alert.style.filter = i > 2 ? 'blur(0.8px)' : '';
+        alert.style.opacity = i < visibleStack ? '1' : '0.5';
+        alert.style.pointerEvents = i === 0 ? 'auto' : 'none'; // Only newest/front is clickable
+      });
+    }
+
+    function showAlert(message, type = 'info') {
+      const alertContainer = document.getElementById('alert-container');
+      const alertDiv = document.createElement('div');
+      alertDiv.className = `alert p-4 flex items-center justify-between font-mono shadow-lg`;
+
+      let bgColor, textColor;
+      switch (type) {
+        case 'success':
+          bgColor = 'bg-green-700';
+          textColor = 'text-green-100';
+          break;
+        case 'error':
+          bgColor = 'bg-red-700';
+          textColor = 'text-red-100';
+          break;
+        case 'info':
+        default:
+          bgColor = 'bg-blue-700';
+          textColor = 'text-blue-100';
+          break;
+      }
+      alertDiv.classList.add(bgColor, textColor);
+      alertDiv.innerHTML = `
+        <span class="font-semibold">${message}</span>
+        <button class="ml-4 text-sm opacity-75 hover:opacity-100 focus:outline-none"
+          onclick="this.parentElement.remove(); updateAlert3DStack(); return false;"
+          style="pointer-events:auto;">&times;</button>
+      `;
+
+      alertContainer.appendChild(alertDiv);
+
+      // Use requestAnimationFrame for immediate show
+      requestAnimationFrame(() => {
+        alertDiv.style.opacity = '1';
+      });
+      updateAlert3DStack();
+
+      setTimeout(() => {
+        alertDiv.style.opacity = '0';
+        alertDiv.addEventListener('transitionend', () => {
+          alertDiv.remove();
+          updateAlert3DStack();
+        });
+      }, 5000);
+    }
+
+    async function return_fasta() {
+      const inputValue = document.getElementById("protein_name").value;
+      const resultDiv = document.getElementById("result");
+      if (!inputValue) {
+        showAlert('Please enter a UniProt ID for the protein.', 'info');
+        return;
+      }
+
+      const baseUrl = `https://rest.uniprot.org/uniprotkb/${encodeURIComponent(inputValue)}`;
+      try {
+        const response = await fetch(baseUrl, {
+          method: "GET",
+          headers: { "Accept": "application/json" }
+        });
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            showAlert(`Protein with ID "${inputValue}" not found. Please check the UniProt ID.`, 'error');
+          } else {
+            showAlert(`Error fetching FASTA: ${response.statusText}`, 'error');
+          }
+          resultDiv.textContent = '';
+          return;
+        }
+
+        const data = await response.json();
+
+        const source_database = data.entryType === "Reviewed" ? "sp" : "tr";
+        const accession_number = data.primaryAccession;
+        const entry_name = data.uniProtkbId;
+        const fullname = data.proteinDescription?.recommendedName?.fullName?.value || "Unknown Protein";
+        const og_species = data.organism?.scientificName || "Unknown Species";
+        const taxon_id = data.organism?.taxonId || "0000";
+        const geneName = data.genes?.[0]?.geneName?.value || "UNKNOWN";
+        const pExistence = data.proteinExistence?.type?.match(/\d+/)?.[0] || "1";
+        const SV = data.entryAudit?.sequenceVersion || "1";
+
+        const fastaHeader = `>${source_database}|${accession_number}|${entry_name} ${fullname} OS=${og_species} OX=${taxon_id} GN=${geneName} PE=${pExistence} SV=${SV}`;
+        const AAS = data.sequence.value;
+        let formattedAAS = '';
+        for (let i = 0; i < AAS.length; i += 60) {
+          formattedAAS += AAS.slice(i, i + 60) + '\n';
+        }
+
+        resultDiv.textContent = fastaHeader + "\n" + formattedAAS.trim();
+        showAlert('FASTA returned successfully!', 'success');
+
+      } catch (error) {
+        console.error('Error in return_fasta:', error);
+        showAlert(`An unexpected error occurred: ${error.message}`, 'error');
+        resultDiv.textContent = '';
+      }
+    }
+
+    async function save_fasta() {
+      const inputValue = document.getElementById("protein_name").value;
+      const textContent = document.getElementById("result").textContent;
+
+      if (!textContent) {
+        showAlert('No FASTA data to save. Please "Return FASTA" first.', 'info');
+        return;
+      }
+      if (!inputValue) {
+        showAlert('Please enter a UniProt ID to name the file.', 'info');
+        return;
+      }
+
+      try {
+        const save_response = await fetch(`${default_url}/save_fasta?file_number=${encodeURIComponent(inputValue)}&bruh=${encodeURIComponent(textContent)}`);
+        if (!save_response.ok) throw new Error(`HTTP error! status: ${save_response.status}`);
+        const data = await save_response.json();
+
+        document.getElementById("result2").textContent = data.message;
+        populateFileSelect();
+        showAlert('FASTA saved successfully!', 'success');
+
+      } catch (error) {
+        console.error('Error in save_fasta:', error);
+        showAlert(`Error saving FASTA: ${error.message}`, 'error');
+        document.getElementById("result2").textContent = `Error: ${error.message}`;
+      }
+    }
+
+    async function view_fasta() {
+      const fastaSelect = document.getElementById("files");
+      const selectedFile = fastaSelect.value;
+      const resultDiv = document.getElementById("result3");
+
+      if (!selectedFile) {
+        showAlert('Please select a FASTA file to view.', 'info');
+        resultDiv.textContent = '';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${default_url}/return_fasta2?file=${encodeURIComponent(selectedFile)}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        resultDiv.textContent = data.message;
+        showAlert(`Viewing file: ${selectedFile}`, 'info');
+      } catch (error) {
+        console.error('Error in view_fasta:', error);
+        showAlert(`Error viewing FASTA file: ${error.message}`, 'error');
+        resultDiv.textContent = '';
+      }
+    }
+
+    async function populateFileSelect() {
+      const select = document.getElementById("files");
+      try {
+        const response = await fetch(`${default_url}/list_files`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        select.innerHTML = "";
+        if (data.files && Array.isArray(data.files) && data.files.length > 0) {
+          data.files.forEach(filename => {
+            const option = document.createElement("option");
+            option.value = filename;
+            option.textContent = filename;
+            select.appendChild(option);
+          });
+          showAlert('Files loaded successfully!', 'success');
+        } else {
+          const option = document.createElement("option");
+          option.value = "";
+          option.textContent = "No files found";
+          select.appendChild(option);
+          showAlert('No saved FASTA files found.', 'info');
+        }
+      } catch (error) {
+        console.error('Error populating file select:', error);
+        select.innerHTML = "<option value=''>Error loading files</option>";
+        showAlert(`Error loading files: ${error.message}`, 'error');
+      }
+    }
+
+    window.onload = populateFileSelect;
+  </script>
+</body>
+</html>
