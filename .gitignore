@@ -1,3 +1,4 @@
 venv
 .env
 templates/backup.html
+web_dir/*
