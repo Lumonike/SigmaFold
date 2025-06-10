@@ -24,35 +24,49 @@
       min-height: 100vh;
       background: #f3f3f3;
     }
+    #container-01 {
+      width: 100%;
+      max-width: 400px;
+      height: 400px;
+      position: relative;
+      margin: 1.5em auto;
+      box-sizing: border-box;
+      background: #fff;
+      border: 1px solid #ccc;
+    }
+    #result {
+      color: #b00;
+      margin-top: 1em;
+      min-height: 1.5em;
+    }
+    input[type="text"] {
+      margin-top: 2em;
+      margin-bottom: 0.5em;
+      padding: 0.3em 0.5em;
+      font-size: 1em;
+      border-radius: 4px;
+      border: 1px solid #bbb;
+    }
+    button {
+      padding: 0.3em 1em;
+      font-size: 1em;
+      border-radius: 4px;
+      border: 1px solid #bbb;
+      background: #eef;
+      cursor: pointer;
+      margin-bottom: 1em;
+    }
   </style>
 </head>
 <body>  
-  <!-- <div id="container-01" class="mol-container"></div> -->
+  
   <input type="text" id="pdb_name" name="pdb_file_name">
   <div id="result"></div>
   <button onclick="get_pdb()">click me</button>
-  <script>
+  <div id="container-01"></div>
+  <script> 
+    const viewer = $3Dmol.createViewer("container-01", {});
     var default_url = window.location;
-    // let element = document.getElementById("container-01");
-    // let config = {};
-    // let viewer = $3Dmol.createViewer(element, config);
-
-    // // Make sure this path is accessible from the browser!
-    // let pdbUri = '/fs/scratch/PZS1152/alphafold/william_directory/SigmaFold/web_pdb/P99999.pdb'; // adjust as needed
-
-    // jQuery.ajax(pdbUri, { 
-    //   success: function(data) {
-    //     viewer.addModel(data, "pdb");
-    //     viewer.setStyle({}, {cartoon: {color: 'spectrum'}});
-    //     viewer.zoomTo();
-    //     viewer.render();
-    //     viewer.zoom(1.2, 1000);
-    //   },
-    //   error: function(hdr, status, err) {
-    //     console.error("Failed to load PDB " + pdbUri + ": " + err);
-    //   },
-    // });
-
     async function get_pdb() {
       const inputValue = document.getElementById("pdb_name").value;
       const resultBox = document.getElementById("result");
@@ -62,8 +76,13 @@
         if (!save_response.ok) throw new Error(`HTTP error! status: ${save_response.status}`);
         const data = await save_response.json();
 
-        resultBox.textContent = data.message;
-
+        const pdbText = data.message;
+        viewer.addModel(pdbText, "pdb");
+        viewer.setStyle({}, {cartoon: {color: 'spectrum'}});
+        viewer.zoomTo();
+        viewer.render();
+        viewer.zoom(1.2, 1000);
+        
       } catch (error) {
         resultBox.textContent = `Error getting pdb: ${error.message}`;
       }

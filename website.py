@@ -126,5 +126,5 @@ def getpdb():
         return jsonify({'message': f'Unexpected error: {str(e)}'}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=1212)
+    app.run(debug=True, port=0000)
 
