@@ -4,27 +4,70 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SigmaFold</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
   <style>
     .mol-container {
-      width: 400px;
+      width: 100%;
+      max-width: 400px;
       height: 400px;
       position: relative;
+      margin: 0 auto;
+      box-sizing: border-box;
     }
-    </style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f3f3f3;
+    }
+  </style>
 </head>
 <body>  
-    <div id="container-01" class="mol-container"></div>
+  <!-- <div id="container-01" class="mol-container"></div> -->
+  <input type="text" id="pdb_name" name="pdb_file_name">
+  <div id="result"></div>
+  <button onclick="get_pdb()">click me</button>
+  <script>
+    var default_url = window.location;
+    // let element = document.getElementById("container-01");
+    // let config = {};
+    // let viewer = $3Dmol.createViewer(element, config);
+
+    // // Make sure this path is accessible from the browser!
+    // let pdbUri = '/fs/scratch/PZS1152/alphafold/william_directory/SigmaFold/web_pdb/P99999.pdb'; // adjust as needed
+
+    // jQuery.ajax(pdbUri, { 
+    //   success: function(data) {
+    //     viewer.addModel(data, "pdb");
+    //     viewer.setStyle({}, {cartoon: {color: 'spectrum'}});
+    //     viewer.zoomTo();
+    //     viewer.render();
+    //     viewer.zoom(1.2, 1000);
+    //   },
+    //   error: function(hdr, status, err) {
+    //     console.error("Failed to load PDB " + pdbUri + ": " + err);
+    //   },
+    // });
+
+    async function get_pdb() {
+      const inputValue = document.getElementById("pdb_name").value;
+      const resultBox = document.getElementById("result");
+
+      try {
+        const save_response = await fetch(`${default_url}/getpdb?file_name=${encodeURIComponent(inputValue)}`);
+        if (!save_response.ok) throw new Error(`HTTP error! status: ${save_response.status}`);
+        const data = await save_response.json();
+
+        resultBox.textContent = data.message;
+
+      } catch (error) {
+        resultBox.textContent = `Error getting pdb: ${error.message}`;
+      }
+    }
+  </script>
 </body>
-
-<script>
-    let element = document.querySelector('#container-01');
-    let config = { backgroundColor: 'orange' };
-    let viewer = $3Dmol.createViewer( element, config );
-    viewer.addSphere({ center: {x:0, y:0, z:0}, radius: 10.0, color: 'green' });
-    viewer.zoomTo();
-    viewer.render();
-    viewer.zoom(0.8, 2000);
-</script>
-
 </html>
