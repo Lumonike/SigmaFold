@@ -80,10 +80,9 @@
            class="p-4 bg-gray-800 border border-gray-700 rounded text-sm whitespace-pre-wrap overflow-x-auto"></div>
     </div>
     <div>
-      <h2 class="text-xl font-semibold mb-2">FASTA PDB Viewport</h2>
+      <h2 class="text-xl font-semibold mb-6">FASTA PDB Viewport</h2>
       <a id="viewport_link"
-           class="p-4 bg-gray-800 border border-gray-700 rounded text-sm whitespace-pre-wrap overflow-x-auto" href="viewport">Viewport</div>
-    </div>
+           class="p-4 bg-gray-800 border border-gray-700 rounded text-sm whitespace-pre-wrap overflow-x-auto" href="viewport">Viewport</a>
   </div>
 
   <script>
@@ -127,7 +126,7 @@
           alertQueue = alertQueue.filter(a => a !== oldest);
           updateAlert3DStack();
         }
-      }, 400);
+      }, 100);
     }
 
     function showAlert(message, type = 'info') {
@@ -173,7 +172,7 @@
         setTimeout(function processQueue() {
           removeOldestAlert();
           if (alertQueue.length > 0) {
-            setTimeout(processQueue, 700); // show each alert for 700ms before removing the next
+            setTimeout(processQueue, 500); // show each alert for 700ms before removing the next
           }
         }, 1000); // initial delay for first alert
       }
