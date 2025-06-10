@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SigmaFold</title>
+  <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+  <style>
+    .mol-container {
+      width: 400px;
+      height: 400px;
+      position: relative;
+    }
+    </style>
+</head>
+<body>  
+    <div id="container-01" class="mol-container"></div>
+</body>
+
+<script>
+    let element = document.querySelector('#container-01');
+    let config = { backgroundColor: 'orange' };
+    let viewer = $3Dmol.createViewer( element, config );
+    viewer.addSphere({ center: {x:0, y:0, z:0}, radius: 10.0, color: 'green' });
+    viewer.zoomTo();
+    viewer.render();
+    viewer.zoom(0.8, 2000);
+</script>
+
+</html>
