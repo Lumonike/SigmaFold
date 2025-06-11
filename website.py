@@ -1,11 +1,14 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 import requests
 import sys
 import subprocess
-from flask import request
-from flask import jsonify
 import os
 import argparse
+import io
+import pickle
+
+import matplotlib.pyplot as plt
+
 
 parser = argparse.ArgumentParser(description="Process some flags.")
 parser.add_argument('--base_directory', required=True, type=str, help='Enable verbose mode')
@@ -19,7 +22,6 @@ app = Flask(__name__, template_folder = args.base_directory + "templates/")
 def index():
     return render_template(f"template.html")
 
-    
 @app.route('/viewport')
 def vp():
     return render_template(f"viewport.html")
@@ -43,8 +45,6 @@ def return_fasta():
     except Exception as e:
         return jsonify({'message': f'Unexpected error: {str(e)}'}), 500
 
-
-
 @app.route('/delete_fasta')
 def delete_fasta():
     f = request.args.get('file','')
@@ -62,7 +62,6 @@ def delete_fasta():
     except Exception as e:
         return jsonify({'message': f'Unexpected error: {str(e)}'}), 500
 
-
 @app.route('/return_fasta2')
 def return_fasta2():
     f = request.args.get('file', '')
@@ -79,7 +78,6 @@ def return_fasta2():
         return jsonify({'message': f'Error during grep: {e.stderr or str(e)}'}), 500
     except Exception as e:
         return jsonify({'message': f'Unexpected error: {str(e)}'}), 500
-
 
 @app.route('/save_fasta')
 def save_fasta():
@@ -101,7 +99,6 @@ def save_fasta():
         text=True
     )
     return jsonify({'message': "File Created"})
-
 
 @app.route('/list_files')
 def list_files():
@@ -131,6 +128,53 @@ def list_pdb():
     files = os.listdir(directory)
     return jsonify({'files': files})
 
-if __name__ == '__main__':
-    app.run(debug=True, port=0000)
+@app.route('/viewport/list_pkl')
+def list_pkl():
+    directory = f"{args.base_directory}web_pkl"
+    files = os.listdir(directory)
+    return jsonify({'files': files})
 
+# ---------- Serve PKL Heatmap Graph as PNG image ----------
+@app.route('/viewport/pkl_graph')
+def pkl_graph():
+    file_name = request.args.get('file_name', '')
+    with open(f"{args.base_directory}web_pkl/{file_name}", "rb") as f:
+        result = pickle.load(f)
+    pae = result["predicted_aligned_error"]
+    plt.figure(figsize=(6, 5))
+    plt.imshow(pae, cmap="viridis", origin="lower")
+    plt.colorbar(label="PAE (Å)")
+    plt.title("Predicted Aligned Error (PAE) – Model 5")
+    plt.xlabel("Residue Index")
+    plt.ylabel("Residue Index")
+    plt.tight_layout()
+    img_io = io.BytesIO()
+    plt.savefig(img_io, format='png')
+    plt.close()
+    img_io.seek(0)
+    return send_file(img_io, mimetype='image/png')
+
+# ---------- Serve PKL Line Graph as PNG image ----------
+@app.route('/viewport/pkl_line')
+def pkl_line():
+    file_name = request.args.get('file_name', '')
+    with open(f"{args.base_directory}web_pkl/{file_name}", "rb") as f:
+        result = pickle.load(f)
+    plddt = result["plddt"]
+    plt.figure(figsize=(10, 4))
+    plt.plot(plddt, label="pLDDT")
+    plt.axhline(70, color='orange', linestyle='--', label="70 – Confident")
+    plt.axhline(90, color='green', linestyle='--', label="90 – Very High")
+    plt.xlabel("Residue Index")
+    plt.ylabel("pLDDT Score")
+    plt.title("Per-residue Confidence (pLDDT) – Model 5")
+    plt.legend()
+    plt.tight_layout()
+    img_io = io.BytesIO()
+    plt.savefig(img_io, format='png')
+    plt.close()
+    img_io.seek(0)
+    return send_file(img_io, mimetype='image/png')
+ 
+if __name__ == '__main__':
+    app.run(debug=True, port=1212)

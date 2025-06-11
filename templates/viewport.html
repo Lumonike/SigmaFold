@@ -7,116 +7,210 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
   <style>
-   body {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: #111827; /* Tailwind's gray-900 */
-  color: #f3f4f6;       /* Tailwind's gray-100 */
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #111827;
+      color: #f3f4f6;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
 
-.mol-container, #container-01 {
-  width: 100%;
-  max-width: 800px;
-  height: 800px;
-  position: relative;
-  margin: 1.5em auto;
-  box-sizing: border-box;
-  background: #1f2937; /* Tailwind's gray-800 */
-  border: 1px solid #374151; /* Tailwind's gray-700 */
-  border-radius: 0.5rem;
-}
+    .mol-flex-row {
+      display: flex;
+      flex-direction: row;
+      gap: 2em;
+      width: 100%;
+      max-width: 1700px;
+      justify-content: center;
+      align-items: flex-start;
+    }
 
-#result {
-  color: #f87171; /* Tailwind's red-400 */
-  margin-top: 1em;
-  min-height: 1.5em;
-  text-align: center;
-}
+    .mol-container {
+      flex: 1 1 0;
+      min-width: 0;
+      max-width: 800px;
+      height: 800px;
+      position: relative;
+      box-sizing: border-box;
+      background: #111827;
+      border: none;
+      border-radius: 0;
+      margin: 1.5em 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
 
-.pdb-input-row {
-  display: flex;
-  justify-content: center;
-  align-items: stretch; /* CHANGED from center to stretch for true height match */
-  margin-top: 2em;
-  margin-bottom: 0.5em;
-  gap: 0.5em;
-}
+    /* For the right column with heatmap+line chart stacked vertically */
+    .right-stack {
+      flex: 1 1 0;
+      max-width: 800px;
+      height: 800px;
+      display: flex;
+      flex-direction: column;
+      gap: 1em;
+      background: #111827;
+      border: none;
+      border-radius: 0;
+      margin: 1.5em 0;
+    }
 
-select,
-.pdb-input-row button {
-  height: 44px; /* Explicitly set equal height for both */
-  font-size: 1em;
-  border-radius: 6px;
-  border: 1px solid #4b5563;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-}
+    .heatmap-container {
+      flex: 0 0 45%;
+      min-height: 0;
+      min-width: 0;
+      background: #111827;
+      border: none;
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      height: 330px;
+      max-height: 350px;
+    }
 
-select {
-  padding: 0 1em;
-  background-color: #1f2937; /* gray-800 */
-  color: #f9fafb; /* gray-100 */
-  min-width: 200px;
-}
+    .linechart-container {
+      flex: 1 1 0;
+      min-height: 0;
+      min-width: 0;
+      background: #111827;
+      border: none;
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      height: 330px;
+      max-height: 350px;
+    }
 
-.pdb-input-row button {
-  padding: 0 1em;
-  background-color: #2563eb; /* blue-600 */
-  color: #f9fafb;
-  cursor: pointer;
-  margin-bottom: 0;
-  white-space: nowrap;
-  transition: background 0.2s ease-in-out;
-  border: 1px solid #4b5563;
-}
+    #container-01 {
+      height: 800px;
+      max-width: 800px;
+      min-width: 0;
+    }
 
-.pdb-input-row button:hover {
-  background-color: #1d4ed8; /* blue-700 */
-}
+    #result {
+      color: #f87171;
+      margin-top: 1em;
+      min-height: 1.5em;
+      text-align: center;
+    }
 
-@media (max-width: 900px) {
-  .mol-container, #container-01 {
-    max-width: 98vw;
-    height: 60vw;
-    min-height: 200px;
-  }
-}
+    .pdb-input-row,
+    .second-input-row {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      gap: 0.5em;
+      margin-bottom: 0.5em;
+      width: 100%;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
 
-@media (max-width: 500px) {
-  .pdb-input-row {
-    flex-direction: column;
-    gap: 0.3em;
-    align-items: stretch;
-  }
-  select,
-  .pdb-input-row button {
-    width: 100%;
-    min-width: 0;
-    max-width: 100vw;
-  }
-}
+    .pdb-input-row {
+      margin-top: 2em;
+    }
+
+    select,
+    .pdb-input-row button,
+    .second-input-row button {
+      height: 44px;
+      font-size: 1em;
+      border-radius: 6px;
+      border: 1px solid #4b5563;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+    }
+
+    select {
+      padding: 0 1em;
+      background-color: #1f2937;
+      color: #f9fafb;
+      min-width: 200px;
+    }
+
+    .pdb-input-row button,
+    .second-input-row button {
+      padding: 0 1em;
+      background-color: #2563eb;
+      color: #f9fafb;
+      cursor: pointer;
+      margin-bottom: 0;
+      white-space: nowrap;
+      transition: background 0.2s ease-in-out;
+      border: 1px solid #4b5563;
+    }
+
+    .pdb-input-row button:hover,
+    .second-input-row button:hover {
+      background-color: #1d4ed8;
+    }
+
+    .input-flex-row {
+      display: flex;
+      flex-direction: row;
+      gap: 2em;
+      width: 100%;
+      max-width: 1700px;
+      justify-content: center;
+      align-items: flex-end;
+      margin-bottom: 0;
+    }
+
+    /* All images fit their boxes */
+    .heatmap-container img,
+    .linechart-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      margin: 0;
+      padding: 0;
+      background: #111827;
+      border-radius: 0;
+      max-width: 100%;
+      max-height: 100%;
+    }
   </style>
-  
 </head>
 <body>
-  <div class="pdb-input-row">
-    <select id="pdb_name">
-      <option value="" disabled selected>Select a PDB file</option>
-    </select>
-    <button onclick="get_pdb()">Show 3D</button>
+  <div class="input-flex-row">
+    <form class="pdb-input-row" onsubmit="get_pdb(); return false;">
+      <select id="pdb_name">
+        <option value="" disabled selected>Select a PDB file</option>
+      </select>
+      <button type="submit">Show 3D</button>
+    </form>
+    <form class="second-input-row" onsubmit="get_pkl_graphs(); return false;">
+      <select id="pkl_name">
+        <option value="" disabled selected>Select a PKL file</option>
+      </select>
+      <button type="submit">Show Graphs</button>
+    </form>
   </div>
   <div id="result"></div>
-  <div id="container-01" class="mol-container"></div>
+  <div class="mol-flex-row">
+    <div id="container-01" class="mol-container"></div>
+    <div class="right-stack">
+      <div id="container-02" class="heatmap-container"></div>
+      <div id="container-03" class="linechart-container"></div>
+    </div>
+  </div>
   <script>
     const viewer = $3Dmol.createViewer("container-01", {});
     var default_url = window.location;
+
     async function get_pdb() {
       const inputValue = document.getElementById("pdb_name").value;
       const resultBox = document.getElementById("result");
@@ -137,7 +231,17 @@ select {
 
         const pdbText = data.message;
         viewer.addModel(pdbText, "pdb");
-        viewer.setStyle({}, {cartoon: {color: 'spectrum'}});
+        viewer.setStyle({}, {
+          cartoon: {
+            colorfunc: function(atom) {
+              const plddt = atom.b;
+              if (plddt > 90) return "blue";
+              else if (plddt > 70) return "cyan";
+              else if (plddt > 50) return "yellow";
+              else return "orange";
+            }
+          }
+        });
         viewer.zoomTo();
         viewer.render();
         viewer.zoom(1.2, 1000);
@@ -146,7 +250,71 @@ select {
         resultBox.textContent = `Error getting pdb: ${error.message}`;
       }
     }
-    async function populateFileSelect() {
+
+
+    
+    // Shows PKL heatmap in container-02 and line graph in container-03
+    async function get_pkl_graphs() {
+  const inputValue = document.getElementById("pkl_name").value;
+  const resultBox = document.getElementById("result");
+  const containerHeat = document.getElementById("container-02");
+  const containerLine = document.getElementById("container-03");
+
+  resultBox.textContent = "";
+  containerHeat.innerHTML = "";
+  containerLine.innerHTML = "";
+
+  if (!inputValue) {
+    resultBox.textContent = "Please select a PKL file.";
+    return;
+  }
+
+  // Heatmap
+  const imgHeat = document.createElement("img");
+  imgHeat.style.width = "100%";
+  imgHeat.style.height = "100%";
+  imgHeat.style.objectFit = "contain";
+  imgHeat.src = `${default_url}/pkl_graph?file_name=${encodeURIComponent(inputValue)}`;
+  imgHeat.alt = "PAE Heatmap";
+  containerHeat.appendChild(imgHeat);
+
+  try {
+    await waitForImageToLoad(imgHeat);
+  } catch {
+    imgHeat.alt = "Could not load heatmap image.";
+    imgHeat.src = "";
+  }
+
+  // Line chart
+  const imgLine = document.createElement("img");
+  imgLine.style.width = "100%";
+  imgLine.style.height = "100%";
+  imgLine.style.objectFit = "contain";
+  imgLine.src = `${default_url}/pkl_line?file_name=${encodeURIComponent(inputValue)}`;
+  imgLine.alt = "pLDDT Line Chart";
+  containerLine.appendChild(imgLine);
+
+  try {
+    await waitForImageToLoad(imgLine);
+  } catch {
+    imgLine.alt = "Could not load line chart image.";
+    imgLine.src = "";
+  }
+}
+
+function waitForImageToLoad(img) {
+  return new Promise((resolve, reject) => {
+    if (img.complete && img.naturalHeight !== 0) {
+      // Already loaded
+      resolve(img);
+    } else {
+      img.onload = () => resolve(img);
+      img.onerror = (err) => reject(err);
+    }
+  });
+}
+
+    async function populateFileSelectPDB() {
       const select = document.getElementById("pdb_name");
       try {
         const response = await fetch(`${default_url}/list_pdb`);
@@ -172,7 +340,36 @@ select {
       }
     }
 
-    window.onload = populateFileSelect;
+    async function populateFileSelectPKL() {
+      const select = document.getElementById("pkl_name");
+      try {
+        const response = await fetch(`${default_url}/list_pkl`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        select.innerHTML = "";
+        if (data.files && Array.isArray(data.files) && data.files.length > 0) {
+          data.files.forEach(filename => {
+            const option = document.createElement("option");
+            option.value = filename;
+            option.textContent = filename;
+            select.appendChild(option);
+          });
+        } else {
+          const option = document.createElement("option");
+          option.value = "";
+          option.textContent = "No files found";
+          select.appendChild(option);
+        }
+      } catch (error) {
+        console.error('Error populating PKL file select:', error);
+        select.innerHTML = "<option value=''>Error loading files</option>";
+      }
+    }
+
+    window.onload = function() {
+      populateFileSelectPDB();
+      populateFileSelectPKL();
+    };
   </script>
 </body>
 </html>
