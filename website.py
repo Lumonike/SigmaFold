@@ -132,5 +132,5 @@ def list_pdb():
     return jsonify({'files': files})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=0000)
+    app.run(debug=True, port=args.port)
 
