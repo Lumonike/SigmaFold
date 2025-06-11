@@ -1,4 +1,5 @@
 import subprocess
+import glob
 
 class slurm_runner:
     def __init__(self,
@@ -50,10 +51,26 @@ class slurm_runner:
         
         print(command)
         
-        subprocess.run(command, shell=True)
+        # subprocess.run(command, shell=True)
+    
+    def movePDB(self, dir):
+        pdb_files = glob.glob(f"{self.output_dir}/{self.protein_id}/*.pdb")
+        pdb_file_start = f"{self.output_dir}/{self.protein_id}/"
+        pdb_file = [f for f in pdb_files if f[len(pdb_file_start):len(pdb_file_start)+7] == "relaxed"][0]
+        subprocess.run(f"cp {pdb_file} {dir}/{self.protein_id}.pdb", shell=True)
+    
+    def movePKL(self, dir):
+        pkl_files = glob.glob(f"{self.output_dir}/{self.protein_id}/*.pkl")
+        pkl_file_start = f"{self.output_dir}/{self.protein_id}/"
+        pkl_file = sorted([f for f in pkl_files if f[len(pkl_file_start):len(pkl_file_start)+13] == "result_model_"])[-1]
+
+        subprocess.run(f"cp {pkl_file} {dir}/{self.protein_id}.pkl", shell=True)
+
+
 
 
 s = slurm_runner(protein_id="P10145", sigmaFold_dir="/fs/scratch/PZS1152/alphafold/robin_alphafold/sigmaFold", db_preset="reduced_dbs", fasta_path="/fs/scratch/PZS1152/alphafold/robin_alphafold/sigmaFold/web_dir/P10145.fasta", model_preset="monomer")
 
 s.run()
+s.movePKL("/fs/scratch/PZS1152/alphafold/robin_alphafold/sigmaFold/web_pkl")
         

@@ -123,6 +123,7 @@ def main():
         alphafold_path=args.alphafold_path,
     )
     runner.run()
+    print("FINISHED_RUNNING_SIGMAFOLD_MOFO")
 
 if __name__ == "__main__":
     main()

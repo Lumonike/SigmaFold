@@ -6,9 +6,8 @@ import os
 import argparse
 import io
 import pickle
-
 import matplotlib.pyplot as plt
-
+from af import slurm_runner
 
 parser = argparse.ArgumentParser(description="Process some flags.")
 parser.add_argument('--base_directory', required=True, type=str, help='Enable verbose mode')
@@ -175,6 +174,10 @@ def pkl_line():
     plt.close()
     img_io.seek(0)
     return send_file(img_io, mimetype='image/png')
+
+@app.route('/run_alphafold')
+def run_alphafold():
+    return jsonify({"message", "I'm robean"})
  
 if __name__ == '__main__':
-    app.run(debug=True, port=1212)
+    app.run(debug=True, port=args.port)

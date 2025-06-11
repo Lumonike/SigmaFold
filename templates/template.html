@@ -60,6 +60,8 @@
               class="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition">View FASTA</button>
       <button onclick="delete_fasta()"
               class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">Delete FASTA</button>
+      <button onclick="run_alphafold()"
+              class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">Run Alphafold</button>
     </div>
 
     <div>
@@ -350,6 +352,18 @@
         console.error('Error populating file select:', error);
         select.innerHTML = "<option value=''>Error loading files</option>";
         showAlert(`Error loading files: ${error.message}`, 'error');
+      }
+    }
+
+    async function run_alphafold() {
+      try {
+        const response = await fetch(`${default_url}/run_alphafold`)
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        console.log(data);
+        showAlert("Successfully began alphafold process")
+      } catch (error) {
+        showAlert(`Error running Alphafold: ${error.message}`, 'error')
       }
     }
 
