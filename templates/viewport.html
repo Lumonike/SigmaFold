@@ -187,12 +187,14 @@
 <body>
   <div class="input-flex-row">
     <form class="pdb-input-row" onsubmit="get_pdb(); return false;">
+      <button type="button" onclick="delete_pdb()" style="margin-right:0.5em;">Delete PDB</button>
       <select id="pdb_name">
         <option value="" disabled selected>Select a PDB file</option>
       </select>
       <button type="submit">Show 3D</button>
     </form>
     <form class="second-input-row" onsubmit="get_pkl_graphs(); return false;">
+      <button type="button" onclick="delete_pkl()" style="margin-right:0.5em;">Delete PKL</button>
       <select id="pkl_name">
         <option value="" disabled selected>Select a PKL file</option>
       </select>
@@ -248,6 +250,33 @@
 
       } catch (error) {
         resultBox.textContent = `Error getting pdb: ${error.message}`;
+      }
+    }
+
+    async function delete_pdb() {
+      const fastaSelect = document.getElementById("pdb_name");
+      const selectedFile = fastaSelect.value;
+
+      try {
+        const response = await fetch(`${default_url}/delete_pdb?file=${encodeURIComponent(selectedFile)}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        populateFileSelectPDB();
+      } catch (error) {
+        console.error('Error in delete_fasta:', error);
+      }
+    }
+
+    async function delete_pkl() {
+      const fastaSelect = document.getElementById("pkl_name");
+      const selectedFile = fastaSelect.value;
+      try {
+        const response = await fetch(`${default_url}/delete_pkl?file=${encodeURIComponent(selectedFile)}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        populateFileSelectPKL();
+      } catch (error) {
+        console.error('Error in delete_pkl:', error);
       }
     }
 
