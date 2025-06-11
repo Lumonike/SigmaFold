@@ -6,7 +6,7 @@ import subprocess
 load_dotenv()
 
 DIR = os.getenv('BASE_DIRECTORY')
-
+PORT = os.getenv('PORT')
 print(f"running SigmaFold from directory '{DIR}'")
 
 subprocess.run(
@@ -14,6 +14,6 @@ subprocess.run(
         f"python3",
         f"{DIR}website.py",
         f"--base_directory={DIR}",
-        f"--port=6969"
+        f"--port={PORT}"
     ]
 )

@@ -25,10 +25,12 @@ class slurm_runner:
         self.singularity_image= singularity_image
         self.database_dir= database_dir
         self.alphafold_path= alphafold_path
-    
-    def run(self):
+        if model_preset == "monomer":
+            model_preset = "monomer_ptm"
         if not self.output_dir:
             self.output_dir = self.sigmaFold_dir + "/proteins/"
+    
+    def run(self):
         slurm_out = f"{self.output_dir}/{self.protein_id}/slurm.out"
             
         command = f"sbatch --output={slurm_out} {self.sigmaFold_dir}/af/run_alphafold.sh"
@@ -48,10 +50,9 @@ class slurm_runner:
         if self.alphafold_path:
             command += " --alphafold_path=" + self.alphafold_path
 
-        
-        print(command)
-        
-        # subprocess.run(command, shell=True)
+        # return command
+        print("running alphafold with command:", command, flush=True)
+        subprocess.run(command, shell=True)
     
     def movePDB(self, dir):
         pdb_files = glob.glob(f"{self.output_dir}/{self.protein_id}/*.pdb")
@@ -69,8 +70,8 @@ class slurm_runner:
 
 
 
-s = slurm_runner(protein_id="P10145", sigmaFold_dir="/fs/scratch/PZS1152/alphafold/robin_alphafold/sigmaFold", db_preset="reduced_dbs", fasta_path="/fs/scratch/PZS1152/alphafold/robin_alphafold/sigmaFold/web_dir/P10145.fasta", model_preset="monomer")
+# s = slurm_runner(protein_id="P10145", sigmaFold_dir="/fs/scratch/PZS1152/alphafold/robin_alphafold/sigmaFold", db_preset="reduced_dbs", fasta_path="/fs/scratch/PZS1152/alphafold/robin_alphafold/sigmaFold/web_dir/P10145.fasta", model_preset="monomer")
 
-s.run()
-s.movePKL("/fs/scratch/PZS1152/alphafold/robin_alphafold/sigmaFold/web_pkl")
+# s.run()
+# s.movePKL("/fs/scratch/PZS1152/alphafold/robin_alphafold/sigmaFold/web_pkl")
         

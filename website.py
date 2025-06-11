@@ -7,7 +7,7 @@ import argparse
 import io
 import pickle
 import matplotlib.pyplot as plt
-from af import slurm_runner
+from af.slurm_runner import slurm_runner
 
 parser = argparse.ArgumentParser(description="Process some flags.")
 parser.add_argument('--base_directory', required=True, type=str, help='Enable verbose mode')
@@ -24,6 +24,10 @@ def index():
 @app.route('/viewport')
 def vp():
     return render_template(f"viewport.html")
+
+@app.route('/status')
+def status():
+    return render_template(f"status.html")
 
 @app.route('/return_fasta')
 def return_fasta():
@@ -133,6 +137,13 @@ def list_pkl():
     files = os.listdir(directory)
     return jsonify({'files': files})
 
+    
+@app.route('/status/list_protein_folders')
+def list_protein_folders():
+    directory = f"{args.base_directory}proteins"
+    files = os.listdir(directory)
+    return jsonify({'files': files})
+
 # ---------- Serve PKL Heatmap Graph as PNG image ----------
 @app.route('/viewport/pkl_graph')
 def pkl_graph():
@@ -175,9 +186,26 @@ def pkl_line():
     img_io.seek(0)
     return send_file(img_io, mimetype='image/png')
 
+# --- running alphafold and status page
+
 @app.route('/run_alphafold')
 def run_alphafold():
-    return jsonify({"message", "I'm robean"})
+    fasta_file = request.args.get("file", "")
+    sr = slurm_runner(
+        protein_id = fasta_file.split(".")[0],
+        sigmaFold_dir=args.base_directory,
+        db_preset="reduced_dbs",
+        fasta_path=f"{args.base_directory}web_dir/{fasta_file}"
+    )
+    return jsonify({"message": sr.run()})
+
+@app.route("/status/get_log")
+def get_log():
+    protein_name = request.args.get("protein", "")
+    with open(f"{args.base_directory}proteins/{protein_name}/slurm.out") as f:
+        result = f.read()
+    
+    return jsonify({"log message": result})
  
 if __name__ == '__main__':
     app.run(debug=True, port=args.port)

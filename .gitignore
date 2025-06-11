@@ -2,3 +2,5 @@ venv
 .env
 templates/backup.html
 web_dir/*
+web_pkl/*
+proteins/*

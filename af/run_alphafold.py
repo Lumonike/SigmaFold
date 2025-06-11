@@ -50,7 +50,7 @@ class AlphafoldRunner:
             f"--mgnify_database_path={db}/mgnify/mgy_clusters_2022_05.fa",
             f"--obsolete_pdbs_path={db}/pdb_mmcif/obsolete.dat",
             f"--template_mmcif_dir={db}/pdb_mmcif/mmcif_files",
-            f"--uniref90_database_path={db}/uniref90/robins_devious_taxonomy_filtered.fasta",
+            f"--uniref90_database_path={db}/uniref90/uniref90.fasta",
         ]
 
         if self.db_preset == "reduced_dbs":

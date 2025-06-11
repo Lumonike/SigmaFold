@@ -61,7 +61,7 @@
       <button onclick="delete_fasta()"
               class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">Delete FASTA</button>
       <button onclick="run_alphafold()"
-              class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">Run Alphafold</button>
+              class="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 transition">Run Alphafold</button>
     </div>
 
     <div>
@@ -355,9 +355,18 @@
       }
     }
 
+
     async function run_alphafold() {
+      const fastaSelect = document.getElementById("files");
+      const selectedFile = fastaSelect.value;
+      if (!selectedFile) {
+        showAlert('Please select a FASTA file to view.', 'info');
+        resultDiv.textContent = '';
+        return;
+      }
+
       try {
-        const response = await fetch(`${default_url}/run_alphafold`)
+        const response = await fetch(`${default_url}run_alphafold?file=${encodeURIComponent(selectedFile)}`)
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         console.log(data);
