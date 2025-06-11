@@ -177,4 +177,4 @@ def pkl_line():
     return send_file(img_io, mimetype='image/png')
  
 if __name__ == '__main__':
-    app.run(debug=True, port=1212)
+    app.run(debug=True, port=args.port)
