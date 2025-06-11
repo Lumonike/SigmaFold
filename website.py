@@ -61,6 +61,42 @@ def delete_fasta():
     except Exception as e:
         return jsonify({'message': f'Unexpected error: {str(e)}'}), 500
 
+        
+@app.route('/viewport/delete_pdb')
+def delete_pdb():
+    f = request.args.get('file','')
+    try:
+        fasta_file_path = f'{args.base_directory}web_pdb/{f}'
+        result = subprocess.run(
+            ["rm", fasta_file_path],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return jsonify({'message': result.stdout.strip()})
+    except subprocess.CalledProcessError as e:
+        return jsonify({'message': f'Error during rm: {e.stderr or str(e)}'}), 500
+    except Exception as e:
+        return jsonify({'message': f'Unexpected error: {str(e)}'}), 500
+
+        
+@app.route('/viewport/delete_pkl')
+def delete_pkl():
+    f = request.args.get('file','')
+    try:
+        fasta_file_path = f'{args.base_directory}web_pkl/{f}'
+        result = subprocess.run(
+            ["rm", fasta_file_path],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return jsonify({'message': result.stdout.strip()})
+    except subprocess.CalledProcessError as e:
+        return jsonify({'message': f'Error during rm: {e.stderr or str(e)}'}), 500
+    except Exception as e:
+        return jsonify({'message': f'Unexpected error: {str(e)}'}), 500
+
 @app.route('/return_fasta2')
 def return_fasta2():
     f = request.args.get('file', '')
