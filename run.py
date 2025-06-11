@@ -14,6 +14,6 @@ subprocess.run(
         f"python3",
         f"{DIR}website.py",
         f"--base_directory={DIR}",
-        f"--port=696942"
+        f"--port=6969"
     ]
 )
