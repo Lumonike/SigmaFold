@@ -57,18 +57,25 @@ class slurm_runner:
     def movePDB(self, dir):
         pdb_files = glob.glob(f"{self.output_dir}/{self.protein_id}/*.pdb")
         pdb_file_start = f"{self.output_dir}/{self.protein_id}/"
+        if (not pdb_files):
+            raise Exception(f"No PDB files found")
+
         pdb_file = [f for f in pdb_files if f[len(pdb_file_start):len(pdb_file_start)+7] == "relaxed"][0]
         if (not pdb_file):
-            raise Exception(f"No relaxed PDB file found for {self.protein_id} in {self.output_dir}/{self.protein_id}")
+            raise Exception(f"No PDB files found")
         subprocess.run(f"cp {pdb_file} {dir}/{self.protein_id}.pdb", shell=True)
     
     def movePKL(self, dir):
         
         pdb_files = glob.glob(f"{self.output_dir}/{self.protein_id}/*.pdb")
+        
+        if (not pdb_files):
+            raise Exception(f"No PKL files found")
+
         pdb_file_start = f"{self.output_dir}/{self.protein_id}/"
         pdb_file = [f for f in pdb_files if f[len(pdb_file_start):len(pdb_file_start)+7] == "relaxed"][0]
         if (not pdb_file):
-            raise Exception(f"No relaxed PDB file found for {self.protein_id} in {self.output_dir}/{self.protein_id}")
+            raise Exception(f"No PKL files found")
 
         pkl_file = pdb_file.replace("relaxed", "result")
         pkl_file = pkl_file.replace(".pdb", ".pkl")

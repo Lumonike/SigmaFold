@@ -267,7 +267,10 @@ def move_pdb():
         protein_id=protein_name,
         sigmaFold_dir=args.base_directory
     )
-    sr.movePDB(f"{args.base_directory}web_pdb")
+    try:
+        sr.movePDB(f"{args.base_directory}web_pdb")
+    except Exception as e:
+        return jsonify({"message": str(e)})
     return jsonify({"message": f"Moved PDB for {protein_name} to web_pdb directory."})          
  
 @app.route("/status/move_pkl")
@@ -277,7 +280,11 @@ def move_pkl():
         protein_id=protein_name,
         sigmaFold_dir=args.base_directory
     )
-    sr.movePKL(f"{args.base_directory}web_pkl")
+    try:
+        sr.movePKL(f"{args.base_directory}web_pkl")
+    except Exception as e:
+        return jsonify({"message": str(e)})
+
     return jsonify({"message": f"Moved PKL for {protein_name} to web_pkl directory."})          
 
 @app.route('/asset')

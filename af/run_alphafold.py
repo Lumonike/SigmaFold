@@ -123,7 +123,7 @@ def main():
         alphafold_path=args.alphafold_path,
     )
     runner.run()
-    print("FINISHED_RUNNING_SIGMAFOLD_MOFO")
+    print("Alphafold run completed successfully. PDB and PKL files ready to copy.")
 
 if __name__ == "__main__":
     main()
