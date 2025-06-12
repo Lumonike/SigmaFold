@@ -1,0 +1,176 @@
+ body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #111827;
+      color: #f3f4f6;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      zoom: 0.7;
+    }
+
+    .mol-flex-row {
+      display: flex;
+      flex-direction: row;
+      gap: 2em;
+      width: 100%;
+      max-width: 1700px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .mol-container {
+      flex: 1 1 0;
+      min-width: 0;
+      max-width: 800px;
+      height: 800px;
+      position: relative;
+      box-sizing: border-box;
+      background: #111827;
+      border: none;
+      border-radius: 0;
+      margin: 1.5em 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* For the right column with heatmap+line chart stacked vertically */
+    .right-stack {
+      flex: 1 1 0;
+      max-width: 800px;
+      height: 800px;
+      display: flex;
+      flex-direction: column;
+      gap: 1em;
+      background: #111827;
+      border: none;
+      border-radius: 0;
+      margin: 1.5em 0;
+    }
+
+    .heatmap-container {
+      flex: 0 0 45%;
+      min-height: 0;
+      min-width: 0;
+      background: #111827;
+      border: none;
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      height: 330px;
+      max-height: 350px;
+    }
+
+    .linechart-container {
+      flex: 1 1 0;
+      min-height: 0;
+      min-width: 0;
+      background: #111827;
+      border: none;
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      height: 330px;
+      max-height: 350px;
+    }
+
+    #container-01 {
+      height: 800px;
+      max-width: 800px;
+      min-width: 0;
+    }
+
+    #result {
+      color: #f87171;
+      margin-top: 1em;
+      min-height: 1.5em;
+      text-align: center;
+    }
+
+    .pdb-input-row,
+    .second-input-row {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      gap: 0.5em;
+      margin-bottom: 0.5em;
+      width: 100%;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .pdb-input-row {
+      margin-top: 2em;
+    }
+
+    select,
+    .pdb-input-row button,
+    .second-input-row button {
+      height: 44px;
+      font-size: 1em;
+      border-radius: 6px;
+      border: 1px solid #4b5563;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+    }
+
+    select {
+      padding: 0 1em;
+      background-color: #1f2937;
+      color: #f9fafb;
+      min-width: 200px;
+    }
+
+    .pdb-input-row button,
+    .second-input-row button {
+      padding: 0 1em;
+      background-color: #2563eb;
+      color: #f9fafb;
+      cursor: pointer;
+      margin-bottom: 0;
+      white-space: nowrap;
+      transition: background 0.2s ease-in-out;
+      border: 1px solid #4b5563;
+    }
+
+    .pdb-input-row button:hover,
+    .second-input-row button:hover {
+      background-color: #1d4ed8;
+    }
+
+    .input-flex-row {
+      display: flex;
+      flex-direction: row;
+      gap: 2em;
+      width: 100%;
+      max-width: 1700px;
+      justify-content: center;
+      align-items: flex-end;
+      margin-bottom: 0;
+    }
+
+    /* All images fit their boxes */
+    .heatmap-container img,
+    .linechart-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      margin: 0;
+      padding: 0;
+      background: #111827;
+      border-radius: 0;
+      max-width: 100%;
+      max-height: 100%;
+    }

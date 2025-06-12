@@ -6,49 +6,7 @@
   <title>SigmaFold</title>
   <link rel="icon" type="image/x-icon" href="./asset?file=icon.png">
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    
-    body {
-        zoom: 0.7;
-    }
-
-    #alert-container {
-      position: fixed;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 32rem;
-      z-index: 9999;
-      pointer-events: none;
-      perspective: 1200px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    #alert-container .alert {
-      pointer-events: auto;
-      position: absolute;
-      left: 0;
-      right: 0;
-      margin: auto;
-      width: 100%;
-      box-sizing: border-box;
-      border-radius: 0.5rem;
-      box-shadow: 0 6px 24px 0 rgba(0,0,0,0.23), 0 1.5px 3px 0 rgba(0,0,0,0.15);
-      opacity: 0;
-      transition:
-        opacity 0.4s cubic-bezier(.4,0,.2,1),
-        transform 0.4s cubic-bezier(.4,0,.2,1);
-      will-change: opacity, transform;
-    }
-
-    html, body {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-  </style>
+  <link rel="stylesheet" href="./css?file=template.css">
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen font-mono">
   <!-- Centered main content, no left margin for nav bar -->
