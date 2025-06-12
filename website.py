@@ -126,6 +126,15 @@ def scripts():
         return jsonify({'message': 'File not found'}), 404
     return send_file(asset_path)
 
+
+@app.route('/css')
+def css():
+    file_name = request.args.get('file', '')
+    asset_path = os.path.join(args.base_directory, 'templates','css', file_name)
+    if not os.path.isfile(asset_path):
+        return jsonify({'message': 'File not found'}), 404
+    return send_file(asset_path)
+
 @app.route('/save_fasta')
 def save_fasta():
     file_name = request.args.get('file_number','')
