@@ -10,7 +10,7 @@
     body {
         zoom: 0.7;
     }
-    
+
     #alert-container {
       position: fixed;
       top: 0;
@@ -53,7 +53,7 @@
   <!-- Centered main content, no left margin for nav bar -->
   <div class="flex justify-center items-center min-h-screen">
     <div class="w-full max-w-4xl space-y-8">
-      <h1 class="text-4xl font-bold text-center">SigmaFold</h1>
+      <h1 class="text-4xl font-bold text-center mt-10">SigmaFold</h1>
       <div>
         <a id="viewport_link"
              class="p-4 bg-gray-800 border border-gray-700 rounded text-sm whitespace-pre-wrap overflow-x-auto" href="viewport">Viewport</a>
@@ -114,6 +114,8 @@
 
     // Keep a queue of all active alerts
     let alertQueue = [];
+
+    let alertCnt = 0;
 
     function updateAlert3DStack() {
       const alerts = Array.from(document.querySelectorAll("#alert-container .alert"));
@@ -361,17 +363,31 @@
             option.textContent = filename;
             select.appendChild(option);
           });
+          if (alertCnt == 0) {
+            alertCnt++;
+            return;
+          }
           showAlert('Files loaded successfully!', 'success');
         } else {
           const option = document.createElement("option");
           option.value = "";
           option.textContent = "No files found";
           select.appendChild(option);
+          
+          if (alertCnt == 0) {
+            alertCnt++;
+            return;
+          }
           showAlert('No saved FASTA files found.', 'info');
         }
       } catch (error) {
         console.error('Error populating file select:', error);
         select.innerHTML = "<option value=''>Error loading files</option>";
+        
+        if (alertCnt == 0) {
+          alertCnt++;
+          return;
+        }
         showAlert(`Error loading files: ${error.message}`, 'error');
       }
     }

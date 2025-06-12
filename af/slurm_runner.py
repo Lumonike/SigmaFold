@@ -16,7 +16,7 @@ class slurm_runner:
         self.protein_id = protein_id
         self.sigmaFold_dir = sigmaFold_dir
         if (not protein_id or  not sigmaFold_dir):
-            raise Exception("Need a protein id or sigmaFold_dir for slurm")
+            raise Exception("Need a protein id and sigmaFold_dir for slurm")
         
         self.output_dir= output_dir
         self.db_preset= db_preset
@@ -58,12 +58,20 @@ class slurm_runner:
         pdb_files = glob.glob(f"{self.output_dir}/{self.protein_id}/*.pdb")
         pdb_file_start = f"{self.output_dir}/{self.protein_id}/"
         pdb_file = [f for f in pdb_files if f[len(pdb_file_start):len(pdb_file_start)+7] == "relaxed"][0]
+        if (not pdb_file):
+            raise Exception(f"No relaxed PDB file found for {self.protein_id} in {self.output_dir}/{self.protein_id}")
         subprocess.run(f"cp {pdb_file} {dir}/{self.protein_id}.pdb", shell=True)
     
     def movePKL(self, dir):
-        pkl_files = glob.glob(f"{self.output_dir}/{self.protein_id}/*.pkl")
-        pkl_file_start = f"{self.output_dir}/{self.protein_id}/"
-        pkl_file = sorted([f for f in pkl_files if f[len(pkl_file_start):len(pkl_file_start)+13] == "result_model_"])[-1]
+        
+        pdb_files = glob.glob(f"{self.output_dir}/{self.protein_id}/*.pdb")
+        pdb_file_start = f"{self.output_dir}/{self.protein_id}/"
+        pdb_file = [f for f in pdb_files if f[len(pdb_file_start):len(pdb_file_start)+7] == "relaxed"][0]
+        if (not pdb_file):
+            raise Exception(f"No relaxed PDB file found for {self.protein_id} in {self.output_dir}/{self.protein_id}")
+
+        pkl_file = pdb_file.replace("relaxed", "result")
+        pkl_file = pkl_file.replace(".pdb", ".pkl")
 
         subprocess.run(f"cp {pkl_file} {dir}/{self.protein_id}.pkl", shell=True)
 

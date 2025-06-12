@@ -242,6 +242,26 @@ def get_log():
         result = f.read()
     
     return jsonify({"log message": result})
+
+@app.route("/status/move_pdb")
+def move_pdb():
+    protein_name = request.args.get("protein_name", "")
+    sr = slurm_runner(
+        protein_id=protein_name,
+        sigmaFold_dir=args.base_directory
+    )
+    sr.movePDB(f"{args.base_directory}web_pdb")
+    return jsonify({"message": f"Moved PDB for {protein_name} to web_pdb directory."})          
+ 
+@app.route("/status/move_pkl")
+def move_pkl():
+    protein_name = request.args.get("protein_name", "")
+    sr = slurm_runner(
+        protein_id=protein_name,
+        sigmaFold_dir=args.base_directory
+    )
+    sr.movePKL(f"{args.base_directory}web_pkl")
+    return jsonify({"message": f"Moved PKL for {protein_name} to web_pkl directory."})          
  
 if __name__ == '__main__':
     app.run(debug=True, port=args.port)
