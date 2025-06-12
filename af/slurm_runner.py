@@ -25,8 +25,8 @@ class slurm_runner:
         self.singularity_image= singularity_image
         self.database_dir= database_dir
         self.alphafold_path= alphafold_path
-        if model_preset == "monomer":
-            model_preset = "monomer_ptm"
+        if self.model_preset == "monomer":
+            self.model_preset = "monomer_ptm"
         if not self.output_dir:
             self.output_dir = self.sigmaFold_dir + "/proteins/"
     

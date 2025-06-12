@@ -248,7 +248,8 @@ def run_alphafold():
         protein_id = fasta_file.split(".")[0],
         sigmaFold_dir=args.base_directory,
         db_preset="reduced_dbs",
-        fasta_path=f"{args.base_directory}web_dir/{fasta_file}"
+        fasta_path=f"{args.base_directory}web_dir/{fasta_file}",
+        model_preset="monomer",
     )
     return jsonify({"message": sr.run()})
 
