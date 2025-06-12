@@ -262,6 +262,14 @@ def move_pkl():
     )
     sr.movePKL(f"{args.base_directory}web_pkl")
     return jsonify({"message": f"Moved PKL for {protein_name} to web_pkl directory."})          
- 
+
+@app.route('/asset')
+def get_asset():
+    file_name = request.args.get('file', '')
+    asset_path = os.path.join(args.base_directory, 'assets', file_name)
+    if not os.path.isfile(asset_path):
+        return jsonify({'message': 'File not found'}), 404
+    return send_file(asset_path)
+
 if __name__ == '__main__':
     app.run(debug=True, port=args.port)
