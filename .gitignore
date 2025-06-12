@@ -4,3 +4,4 @@ templates/backup.html
 web_dir/*
 web_pkl/*
 proteins/*
+af/__pycache__
