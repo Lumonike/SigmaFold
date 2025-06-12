@@ -117,7 +117,25 @@ def return_fasta2():
         return jsonify({'message': f'Error during grep: {e.stderr or str(e)}'}), 500
     except Exception as e:
         return jsonify({'message': f'Unexpected error: {str(e)}'}), 500
-
+@app.route('/status/delete_protein')
+def delete_protein():
+    f = request.args.get('file','')
+    # Prevent accidental deletion of all proteins or parent directories
+    if not f or f.strip() in ['', '.', '/', '\\'] or '/' in f or '\\' in f:
+        return jsonify({'message': 'No file specified or invalid file name'}), 400
+    try:
+        file_path = f'{args.base_directory}proteins/{f}'
+        result = subprocess.run(
+            ["rm", "-r", file_path],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return jsonify({'message': result.stdout.strip()})
+    except subprocess.CalledProcessError as e:
+        return jsonify({'message': f'Error during rm -r: {e.stderr or str(e)}'}), 500
+    except Exception as e:
+        return jsonify({'message': f'Unexpected error: {str(e)}'}), 500
 @app.route('/scripts')
 def scripts():
     file_name = request.args.get('file', '')
