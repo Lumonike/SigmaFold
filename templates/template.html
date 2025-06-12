@@ -36,58 +36,74 @@
         transform 0.4s cubic-bezier(.4,0,.2,1);
       will-change: opacity, transform;
     }
-    
+
+    html, body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
   </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen p-6 font-mono">
-  <div class="max-w-4xl mx-auto space-y-8">
-    <h1 class="text-4xl font-bold text-center">SigmaFold</h1>
+<body class="bg-gray-900 text-gray-100 min-h-screen font-mono">
+  <!-- Centered main content, no left margin for nav bar -->
+  <div class="flex justify-center items-center min-h-screen">
+    <div class="w-full max-w-4xl space-y-8">
+      <h1 class="text-4xl font-bold text-center">SigmaFold</h1>
+      <div>
+        <a id="viewport_link"
+             class="p-4 bg-gray-800 border border-gray-700 rounded text-sm whitespace-pre-wrap overflow-x-auto" href="viewport">Viewport</a>
+        <a id="viewport_link"
+             class="p-4 bg-gray-800 border border-gray-700 rounded text-sm whitespace-pre-wrap overflow-x-auto" href="status">Alphafold</a>
+      </div>
 
-    <div id="alert-container"></div>
+      <div id="alert-container"></div>
 
-    <div>
-      <label for="protein_name" class="block text-lg font-semibold mb-2">Protein Name (UniProt ID):</label>
-      <input type="text" id="protein_name" name="protein_name"
-             class="w-full px-4 py-2 rounded bg-gray-800 border border-gray-600 text-white focus:outline-none focus:ring focus:border-blue-400" />
+      <div>
+        <label for="protein_name" class="block text-lg font-semibold mb-2">Protein Name (UniProt ID):</label>
+        <input type="text" id="protein_name" name="protein_name"
+               class="w-full px-4 py-2 rounded bg-gray-800 border border-gray-600 text-white focus:outline-none focus:ring focus:border-blue-400" />
+        
+      </div>
+      
+      <div>
+        <h2 class="text-xl font-semibold mb-2">FASTA Output</h2>
+        <div id="result"
+             class="p-4 bg-gray-800 border border-gray-700 rounded text-sm whitespace-pre-wrap overflow-x-auto"></div>
+        
+      </div>
+        <div class="flex flex-wrap gap-4">
+            <button onclick="return_fasta()"
+                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Return FASTA</button>
+            <button onclick="save_fasta()"
+                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">Save FASTA</button>
+      </div>
+
+      <div>
+        <label for="files" class="block text-lg font-semibold mb-2">Choose a file:</label>
+        <select id="files"
+                class="w-full px-4 py-2 rounded bg-gray-800 border border-gray-600 text-white focus:outline-none focus:ring">
+        </select>
+      </div>
+
+      
+      <div class="flex flex-wrap gap-4">
+        
+        <button onclick="view_fasta()"
+                class="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition">View FASTA</button>
+        <button onclick="delete_fasta()"
+                class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">Delete FASTA</button>
+        <button onclick="run_alphafold()"
+                class="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 transition">Run Alphafold</button>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-semibold mb-2">FASTA Viewer</h2>
+        <div id="result3"
+             class="p-4 bg-gray-800 border border-gray-700 rounded text-sm whitespace-pre-wrap overflow-x-auto"></div>
+      </div>
+      
     </div>
-
-    <div class="flex flex-wrap gap-4">
-      <button onclick="return_fasta()"
-              class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Return FASTA</button>
-      <button onclick="save_fasta()"
-              class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">Save FASTA</button>
-      <button onclick="view_fasta()"
-              class="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition">View FASTA</button>
-      <button onclick="delete_fasta()"
-              class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">Delete FASTA</button>
-      <button onclick="run_alphafold()"
-              class="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 transition">Run Alphafold</button>
-    </div>
-
-    <div>
-      <label for="files" class="block text-lg font-semibold mb-2">Choose a file:</label>
-      <select id="files"
-              class="w-full px-4 py-2 rounded bg-gray-800 border border-gray-600 text-white focus:outline-none focus:ring">
-      </select>
-    </div>
-
-    <div>
-      <h2 class="text-xl font-semibold mb-2">FASTA Output</h2>
-      <div id="result"
-           class="p-4 bg-gray-800 border border-gray-700 rounded text-sm whitespace-pre-wrap overflow-x-auto"></div>
-    </div>
-
-    <div>
-      <h2 class="text-xl font-semibold mb-2">FASTA Viewer</h2>
-      <div id="result3"
-           class="p-4 bg-gray-800 border border-gray-700 rounded text-sm whitespace-pre-wrap overflow-x-auto"></div>
-    </div>
-    <div>
-      <h2 class="text-xl font-semibold mb-6">Protein Viewport</h2>
-      <a id="viewport_link"
-           class="p-4 bg-gray-800 border border-gray-700 rounded text-sm whitespace-pre-wrap overflow-x-auto" href="viewport">Viewport</a>
   </div>
-
   <script>
     let default_url = window.location;
 
