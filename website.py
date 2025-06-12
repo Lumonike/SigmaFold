@@ -118,6 +118,14 @@ def return_fasta2():
     except Exception as e:
         return jsonify({'message': f'Unexpected error: {str(e)}'}), 500
 
+@app.route('/scripts')
+def scripts():
+    file_name = request.args.get('file', '')
+    asset_path = os.path.join(args.base_directory, 'templates','scripts', file_name)
+    if not os.path.isfile(asset_path):
+        return jsonify({'message': 'File not found'}), 404
+    return send_file(asset_path)
+
 @app.route('/save_fasta')
 def save_fasta():
     file_name = request.args.get('file_number','')
